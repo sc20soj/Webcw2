@@ -23,6 +23,7 @@ urlpatterns = [
     path('api/createTransaction/', createTransaction),
     path('api/getTransaction', getTransaction),
     path('api/getUserTransactions', getUserTransactions),
+    path('api/getUserDetails', getUserDetails),
     path('api/getEmailTransactions', getUserTransactions),
     path('api/makePayment', makePayment),
     path('api/refundTransaction', refundTransaction),

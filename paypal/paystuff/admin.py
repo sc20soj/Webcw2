@@ -4,4 +4,4 @@ from .models import *
 admin.site.register(Transaction)
 admin.site.register(BillingAddress)
 admin.site.register(CardDetails)
-#admin.site.register(Payment)
+admin.site.register(User)

@@ -1,6 +1,40 @@
-from django.db import models
+import requests
 
-# Create your models here.
+
+
+def payTalk(transactionDetails):
+    choice = input("Press 1 for user login, 2 for guest, other to cancel")
+    if ("1" == choice):
+        while True:
+            email = input("Enter email")
+            password = input("Enter email")
+            data = '{"email": "sc20soj@leeds.ac.uk", "password":"James"}'
+            response = requests.get('http://127.0.0.1:8000/api/getUserDetails', headers=transactionHeaders, data=data)
+            if(response.status_code == 200):
+                response = requests.post('http://127.0.0.1:8000/api/makePayment', headers=transactionHeaders, data=data)
+                if(response.status_code == 200):
+                    print("Successful",response.text)
+                else: # Shouldn't reach this under any circumstance
+                    print("Error: ",response.text)
+            else:
+                print("Error: ",response.text)
+
+    elif ("2" == choice):
+        email = input("Enter email")
+        deliveryName = input("Enter name")
+        response = requests.post('http://127.0.0.1:8000/api/createTransaction/', headers=transactionHeaders, data=data)
+        if(response.status_code == 200):
+                response = requests.post('http://127.0.0.1:8000/api/makePayment', headers=transactionHeaders, data=data)
+                if(response.status_code == 200):
+                    print("Successful",response.text)
+                else: # Shouldn't reach this under any circumstance
+                    print("Error: ",response.text)
+            else:
+                print("Error: ",response.text)
+
+    else:
+
+
 
 
 class BillingAddress(models.Model):
