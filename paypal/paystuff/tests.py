@@ -37,14 +37,22 @@ class YourTestClass(TestCase):
 
     def test_make_payment(self):
         #if "userId" not in obj or "orderId" not in obj or "merchantId" not in obj or "deliveryEmail" not in obj or "deliveryName" not in obj or "transactionAmount" not in obj
-        data = '{"transaction_id": "4", "cardDetails" :{"number":"1234567890123456", "securityCode":"123", "expiryDate":"03/27"}, "billingAddress" : {"name":"scott", "addressLine1":"33 Windsor", "addressLine2":"33 Windsor", "city":"southport", "postcode":"PE6 5SU","region":"MerseySide", "countryCode":"uk"} }'
+        data = '{"transaction_id": "5", "cardDetails" :{"number":"4929340575740113", "securityCode":"123", "expiryDate":"03/27"}, "billingAddress" : {"name":"scott", "addressLine1":"33 Windsor", "addressLine2":"33 Windsor", "city":"southport", "postcode":"PE6 5SU","region":"MerseySide", "countryCode":"uk"} }'
         response = requests.post('http://127.0.0.1:8000/api/makePayment', headers=self.transactionHeaders, data=data)
         print("test_make_payment ",response.text)
         self.assertTrue(response.status_code == 200)
 
+    def test_wrong_payment(self):
+        #if "userId" not in obj or "orderId" not in obj or "merchantId" not in obj or "deliveryEmail" not in obj or "deliveryName" not in obj or "transactionAmount" not in obj
+        data = '{"transaction_id": "7", "cardDetails" :{"securityCode":"123", "expiryDate":"03/27"}, "billingAddress" : {"name":"scott", "addressLine1":"33 Windsor", "addressLine2":"33 Windsor", "city":"southport", "postcode":"PE6 5SU","region":"MerseySide", "countryCode":"uk"} }'
+        response = requests.post('http://127.0.0.1:8000/api/makePayment', headers=self.transactionHeaders, data=data)
+        print("test_wrong_payment ",response.text)
+        self.assertTrue(response.status_code == 400)
+
     def test_create_transaction(self):
         #if "userId" not in obj or "orderId" not in obj or "merchantId" not in obj or "deliveryEmail" not in obj or "deliveryName" not in obj or "transactionAmount" not in obj
         data = '{ "userId": "-1", "orderId": "1", "merchantId": "1", "currencyCode": "US", "transactionAmount": "60.35", "deliveryEmail": "sj@l.ac.uk", "deliveryName": "Scott", "dateCreated": "27/03/2002", "dateCreated": "27/03/2002","status": "new","callback_url": "scott.co.uk"}'
+        data = '{ "userId": "-1", "orderId": "1", "merchantId": "1", "currencyCode": "US", "transactionAmount": "60.35", "deliveryEmail": "sj@l.ac.uk", "deliveryName": "Scott"}'
         response = requests.post('http://127.0.0.1:8000/api/createTransaction/', headers=self.transactionHeaders, data=data)
         print("test_make_transaction ",response.text)
         self.assertTrue(response.status_code == 200)

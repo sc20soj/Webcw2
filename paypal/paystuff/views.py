@@ -20,6 +20,8 @@ def validateNewTransaction(transaction):
     fields.remove("transaction_id")
     fields.remove("refundAmount")
     fields.remove("updateTime")
+    fields.remove("status")
+    fields.remove("dateCreated")
     for field in fields:
         if field not in transaction:
             return field, " not found."
@@ -31,12 +33,14 @@ def validateNewTransaction(transaction):
 
 def validateBillingAddress(address):
     fields = [f.name for f in BillingAddress._meta.get_fields()]
-    if "fullname" in address and "address_1" in address and "address_2" in address and "town_city" in address and "postcode" in address and "region" in address and "country" in address:
-        for field in obj:
-            if type(obj[field]) != str:
-                return field, " is not a string"
-        return True
-    return "Missing items in billing address."
+    fields.remove("carddetails")
+    fields.remove("id")
+
+    for field in fields:
+        if field not in address:
+            return field, " not found."
+    return True
+
 
 def luhn_checksum(card_number):
     def digits_of(n):
@@ -55,13 +59,17 @@ def validateCardDetails(cardD):
     fields.remove("transaction")
     fields.remove("billingAddress")
     fields.remove("id")
+    fields.remove("user")
+    #print("VDDDDDDDDDD", fields, cardD)
     for field in fields:
+        #print(field)
         if field not in cardD:
+            #print("FAILED")
             return field, " not found."
     if len(cardD["number"]) > 16 and len(cardD["number"]) < 20:
         return "Invalid length of card number"
     if luhn_checksum(cardD["number"]):
-        return "failed luhn tests"
+        return "Invalid Card Test"
     if len(str(cardD["securityCode"])) != 3 and len(str(cardD["securityCode"])) != 4:
         return "Invalid length of security code"
     expiry = cardD["expiryDate"]
@@ -94,9 +102,11 @@ def doUser(data):
     if cardId != None:
         cardDetails = CardDetails.objects.get(id=cardId)
         cStuff = json.loads(serializers.serialize('json', [cardDetails,]))[0]
+        cStuff['fields']['card_id'] = cStuff['pk']
         cStuff = cStuff['fields']
         billingDetails = BillingAddress.objects.get(id=cStuff['billingAddress'])
         bStuff = json.loads(serializers.serialize('json', [billingDetails,]))[0]
+        bStuff['fields']['billing_id'] = bStuff['pk']
         bStuff = bStuff['fields']
         cStuff['billingAddress'] = bStuff
         fields['card_details'] = cStuff
@@ -104,6 +114,10 @@ def doUser(data):
     return fields
 
     
+
+
+
+
 @csrf_exempt
 def createTransaction(request):
     if request.method == 'POST':
@@ -197,10 +211,10 @@ def makePayment(request):
         if not ("cardDetails" in body and "billingAddress" in body):
             return HttpResponse('Failed to include all fields.')
 
-        if type(validateBillingAddress(body['billingAddress'])) == type(True):
-            return HttpResponse(validateBillingAddress(body['billingAddress']))
-        elif type(validateCardDetails(body['cardDetails'])) == type(True):
-            return HttpResponse(validateCardDetails(body['cardDetails']))
+        if type(validateBillingAddress(body['billingAddress'])) != type(True):
+            return HttpResponse(validateBillingAddress(body['billingAddress']), status=400)
+        elif type(validateCardDetails(body['cardDetails'])) != type(True):
+            return HttpResponse(validateCardDetails(body['cardDetails']), status=400)
         else:
             try:
                 transaction = Transaction.objects.get(transaction_id=body["transaction_id"])
@@ -210,19 +224,23 @@ def makePayment(request):
             if transaction.status != "Unpaid":
                 return HttpResponse("Payment has already been made.", status=400)
 
-            #Save billing and card details
-            billing = BillingAddress.objects.create(name=body['billingAddress']['name'],
-                addressLine1=body['billingAddress']['addressLine1'],
-                addressLine2=body['billingAddress']['addressLine2'],
-                city=body['billingAddress']['city'],
-                postcode=body['billingAddress']['postcode'],
-                region=body['billingAddress']['region'],
-                countryCode=body['billingAddress']['countryCode'])
+            if (transaction.userId == "-1"):
+                #Save billing and card details
+                billing = BillingAddress.objects.create(name=body['billingAddress']['name'],
+                    addressLine1=body['billingAddress']['addressLine1'],
+                    addressLine2=body['billingAddress']['addressLine2'],
+                    city=body['billingAddress']['city'],
+                    postcode=body['billingAddress']['postcode'],
+                    region=body['billingAddress']['region'],
+                    countryCode=body['billingAddress']['countryCode'])
 
-            card = CardDetails.objects.create(number=body['cardDetails']['number'],
-                securityCode=body['cardDetails']['securityCode'],
-                expiryDate=body['cardDetails']['expiryDate'],
-                billingAddress=billing)
+                card = CardDetails.objects.create(number=body['cardDetails']['number'],
+                    securityCode=body['cardDetails']['securityCode'],
+                    expiryDate=body['cardDetails']['expiryDate'],
+                    billingAddress=billing)
+            else:
+                billing = BillingAddress.objects.get(id=body['billingAddress']['billing_id'])
+                card = CardDetails.objects.get(id=body['cardDetails']['card_id'])
 
             #Update transaction
             transaction.card_details=card
