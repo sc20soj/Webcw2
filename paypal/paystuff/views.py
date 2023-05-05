@@ -56,10 +56,11 @@ def luhn_checksum(card_number):
 
 def validateCardDetails(cardD):
     fields = [f.name for f in CardDetails._meta.get_fields()]
+    #print("fields", fields)
     fields.remove("transaction")
     fields.remove("billingAddress")
     fields.remove("id")
-    fields.remove("user")
+    fields.remove("user_details")
     #print("VDDDDDDDDDD", fields, cardD)
     for field in fields:
         #print(field)
@@ -98,19 +99,26 @@ def addPrimaryKey(data):
 
 def doUser(data):
     fields = data['fields']
-    cardId = fields['card_details']
-    if cardId != None:
-        cardDetails = CardDetails.objects.get(id=cardId)
+    fields['user_id'] = data['pk']
+    print("doUser",fields)
+    cards = CardDetails.objects.filter(user_details=fields['user_id'])
+    fields['card_details'] = dict()
+    for i in range(len(cards)):
+    #if cardId != None:
+        #cardDetails = CardDetails.objects.get(id=cardId)
+        #cardDetails = CardDetails.objects.get(id=cardId)
+        cardDetails = cards[i]
         cStuff = json.loads(serializers.serialize('json', [cardDetails,]))[0]
         cStuff['fields']['card_id'] = cStuff['pk']
         cStuff = cStuff['fields']
+
         billingDetails = BillingAddress.objects.get(id=cStuff['billingAddress'])
         bStuff = json.loads(serializers.serialize('json', [billingDetails,]))[0]
         bStuff['fields']['billing_id'] = bStuff['pk']
         bStuff = bStuff['fields']
         cStuff['billingAddress'] = bStuff
-        fields['card_details'] = cStuff
-    fields['user_id'] = data['pk']
+        tempS = 'card_details'+ str(i)
+        fields['card_details'][str(i)] = cStuff
     return fields
 
     

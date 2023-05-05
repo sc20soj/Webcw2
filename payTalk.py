@@ -24,9 +24,16 @@ def payTalk(transactionDetails):
                     data = dict()
                     ctResponse = json.loads(response.text)
                     data["transaction_id"] = ctResponse["transaction_id"]
-                    data["billingAddress"] = userResponse["card_details"]["billingAddress"]
+                    #data["billingAddress"] = userResponse["card_details"]["billingAddress"]
                     data["cardDetails"] = userResponse["card_details"]
- 
+                    print("")
+                    for i in range(len(data["cardDetails"])):
+                        print(str(i),data["cardDetails"][str(i)])
+                        print("")
+                    cardChosen = input("Select card of corresponding value: ")
+                    data["billingAddress"] = userResponse["card_details"][str(cardChosen)]["billingAddress"]
+                    data["cardDetails"] = userResponse["card_details"][str(cardChosen)]
+
                     if(input("Submit(y) or Cancel(n)") == "n"):
                         cancelData = dict()
                         cancelData["transaction_id"] = ctResponse["transaction_id"]
