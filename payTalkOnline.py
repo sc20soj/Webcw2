@@ -14,14 +14,14 @@ def payTalk(transactionDetails):
             login = dict()
             login["email"] = input("Enter email")
             login["password"] = input("Enter password")
-            response = requests.get('http://127.0.0.1:8000/api/getUserDetails', headers=transactionHeaders, data=json.dumps(login))
+            response = requests.get('https://sc20soj.pythonanywhere.com/api/getUserDetails', headers=transactionHeaders, data=json.dumps(login))
             if(response.status_code == 200):
                 userResponse = json.loads(response.text)
 
                 transactionDetails["deliveryEmail"] = login["email"]
                 transactionDetails["deliveryName"] = userResponse["name"]
                 transactionDetails["userId"] = userResponse["user_id"]
-                response = requests.post('http://127.0.0.1:8000/api/createTransaction/', headers=transactionHeaders, data=json.dumps(transactionDetails))
+                response = requests.post('https://sc20soj.pythonanywhere.com/api/createTransaction/', headers=transactionHeaders, data=json.dumps(transactionDetails))
                 if(response.status_code == 200):
                     data = dict()
                     ctResponse = json.loads(response.text)
@@ -39,10 +39,10 @@ def payTalk(transactionDetails):
                     if(input("Submit(y) or Cancel(n)") == "n"):
                         cancelData = dict()
                         cancelData["transaction_id"] = ctResponse["transaction_id"]
-                        response = requests.post('http://127.0.0.1:8000/api/cancelTransaction', headers=transactionHeaders, data=json.dumps(cancelData))
+                        response = requests.post('https://sc20soj.pythonanywhere.com/api/cancelTransaction', headers=transactionHeaders, data=json.dumps(cancelData))
                         print(response.text)
                         return "Transaction Cancelled"
-                    response = requests.post('http://127.0.0.1:8000/api/makePayment', headers=transactionHeaders, data=json.dumps(data))
+                    response = requests.post('https://sc20soj.pythonanywhere.com/api/makePayment', headers=transactionHeaders, data=json.dumps(data))
                     if(response.status_code == 200):
                         return "Success",response.text
                     else: # Shouldn't reach this under any circumstance
@@ -56,8 +56,8 @@ def payTalk(transactionDetails):
         transactionDetails["deliveryEmail"] = input("Enter email")
         transactionDetails["deliveryName"] = input("Enter name")
         transactionDetails["userId"] = -1
-        #print(transactionDetails, type(transactionDetails))
-        response = requests.post('http://127.0.0.1:8000/api/createTransaction/', headers=transactionHeaders, data=json.dumps(transactionDetails))
+        print(transactionDetails, type(transactionDetails))
+        response = requests.post('https://sc20soj.pythonanywhere.com/api/createTransaction/', headers=transactionHeaders, data=json.dumps(transactionDetails))
         if(response.status_code == 200):
             while True:
                 ctResponse = json.loads(response.text)
@@ -87,11 +87,11 @@ def payTalk(transactionDetails):
                 if(input("Submit(y) or Cancel(n)") == "n"):
                     cancelData = dict()
                     cancelData["transaction_id"] = ctResponse["transaction_id"]
-                    response = requests.post('http://127.0.0.1:8000/api/cancelTransaction', headers=transactionHeaders, data=json.dumps(cancelData))
+                    response = requests.post('https://sc20soj.pythonanywhere.com/api/cancelTransaction', headers=transactionHeaders, data=json.dumps(cancelData))
                     print(response.text)
                     return "Transaction Cancelled"
 
-                response = requests.post('http://127.0.0.1:8000/api/makePayment', headers=transactionHeaders, data=json.dumps(data))
+                response = requests.post('https://sc20soj.pythonanywhere.com/api/makePayment', headers=transactionHeaders, data=json.dumps(data))
                 if(response.status_code == 200):
                     return response.text
                 else:
