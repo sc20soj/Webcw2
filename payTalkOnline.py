@@ -105,8 +105,42 @@ def payTalk(transactionDetails):
 
 
 
+transactionHeaders = {
+            'Content-Type': 'application/json',
+        }
+choice = input("Press 1 to make payment, 2 to view data, 3 to refund: ")
+if choice == "1":
+	#data = '{"orderId": "23ddew4", "merchantId": "usvd8g78", "currencyCode": "US", "transactionAmount": 60.35}'
+    data = dict()
+    data["orderId"] = input("orderId: ")
+    data["merchantId"] = input("merchantId: ")
+    data["currencyCode"] = "US"
+    data["transactionAmount"] = float(input("transactionAmount: "))
+	#data = json.loads(data)
+    print(payTalk(data))
+elif choice == "2":
+    choice = input("Press 1 to view by user, 2 to view by email: ")
+    if choice == "1":
+        data = dict()
+        data["userId"] = input("Enter User ID: ")
+        response = requests.get('https://sc20soj.pythonanywhere.com/api/getUserTransactions', headers=transactionHeaders, data=json.dumps(data))
+        print(response.text)
+    if choice == "2":
+        data = dict()
+        data["deliveryEmail"] = input("Enter Email: ")
+        response = requests.get('https://sc20soj.pythonanywhere.com/api/getEmailTransactions', headers=transactionHeaders, data=json.dumps(data))
+        print(response.text)
+elif choice == "3":
+    data = dict()
+    data["transaction_id"] = input("Transaction ID: ")
+    data["refundAmount"] = float(input("refundAmount: "))
+    response = requests.post('https://sc20soj.pythonanywhere.com/api/refundTransaction', headers=transactionHeaders, data=json.dumps(data))
+    if(response.status_code == 200):
+        print("Successful Refund")
+    else:
+        print("error:  ",response.text)
 
-data = '{ "userId": "3a2", "orderId": "23ddew4", "merchantId": "usvd8g78", "currencyCode": "US", "transactionAmount": "60.35"}'
-data = json.loads(data)
-print(data)
-print(payTalk(data))
+
+
+
+

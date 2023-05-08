@@ -25,6 +25,8 @@ def validateNewTransaction(transaction):
     for field in fields:
         if field not in transaction:
             return field, " not found."
+    if type(transaction['transactionAmount']) != float:
+        return "Amount is not a float"
 
     if transaction['currencyCode'] not in validCodes:
         return "Invalid currency Code"
@@ -149,7 +151,7 @@ def createTransaction(request):
         else:
             return HttpResponse(validation, status=400)
     else: 
-        return HttpResponse('Not a post request', status=400)
+        return HttpResponse('Only post requests allowed', status=400)
 
 
 @csrf_exempt
@@ -164,13 +166,13 @@ def getTransaction(request):
         except:
             return HttpResponse('Transaction could not be found', status = 404) 
     else: 
-        return HttpResponse('Not a get request', status=400)
+        return HttpResponse('Only get requests allowed', status=400)
 
 @csrf_exempt
 def getUserTransactions(request):
     if request.method == 'GET':
         body = json.loads(request.body)
-        transactions = Transaction.objects.filter(userId=body["userId"])#.order_by('-date_created')
+        transactions = Transaction.objects.filter(userId=body["userId"])
         data = serializers.serialize('json', transactions)
         transactions = []
         items = json.loads(data)
@@ -178,7 +180,7 @@ def getUserTransactions(request):
             transactions.append(addPrimaryKey(item))
         return HttpResponse(json.dumps(transactions))
     else: 
-        return HttpResponse('Not a get request', status=400)
+        return HttpResponse('Only get requests allowed', status=400)
 
 @csrf_exempt
 def getUserDetails(request):
@@ -192,14 +194,14 @@ def getUserDetails(request):
 
         return HttpResponse(json.dumps(doUser(json.loads(serializers.serialize('json', [user,]))[0])))
     else: 
-        return HttpResponse('Not a get request', status=400)
+        return HttpResponse('Only get requests allowed', status=400)
 
 @csrf_exempt
 def getEmailTransactions(request):
     if request.method == 'GET':
         body = json.loads(request.body)
         try:
-            transactions = Transaction.objects.filter(deliveryEmail=body["deliveryEmail"])#.order_by('-date_created')
+            transactions = Transaction.objects.filter(deliveryEmail=body["deliveryEmail"])
         except:
             return HttpResponse('Transaction could not be found', status = 404) 
 
@@ -210,7 +212,7 @@ def getEmailTransactions(request):
             transactions.append(addPrimaryKey(item))
         return HttpResponse(json.dumps(transactions))
     else: 
-        return HttpResponse('Not a get request')
+        return HttpResponse('Only get requests allowed')
 
 @csrf_exempt
 def makePayment(request):
@@ -258,7 +260,7 @@ def makePayment(request):
             data = addPrimaryKey(json.loads(data)[0])
             return HttpResponse(json.dumps(data), status=200)
     else: 
-        return HttpResponse('Not a post request', status=400)
+        return HttpResponse('Only post requests allowed', status=400)
 
 
 @csrf_exempt
@@ -270,6 +272,8 @@ def refundTransaction(request):
         except:
             return HttpResponse('Transaction not found', status = 404) 
         #print("refundtransaction.status", transaction.status)
+        if type(body['refundAmount']) != float:
+            return "Amount is not a float"
         if transaction.status == "Paid" or transaction.status == "paid":
             transaction.status = "Refunded"
             transaction.refundAmount = body["refundAmount"]
@@ -281,7 +285,7 @@ def refundTransaction(request):
         else:
             return HttpResponse('Payment could not be refunded', status = 400) 
     else:
-        return HttpResponse('This API route only accepts Post requests', status = 400)
+        return HttpResponse('Only post requests allowed', status = 400)
 
 
 @csrf_exempt

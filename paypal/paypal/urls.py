@@ -24,15 +24,8 @@ urlpatterns = [
     path('api/getTransaction', getTransaction),
     path('api/getUserTransactions', getUserTransactions),
     path('api/getUserDetails', getUserDetails),
-    path('api/getEmailTransactions', getUserTransactions),
+    path('api/getEmailTransactions', getEmailTransactions),
     path('api/makePayment', makePayment),
     path('api/refundTransaction', refundTransaction),
     path('api/cancelTransaction', cancelTransaction)
 ]
-"""
-    path('api/getTransaction/<int:id>', getTransaction),
-    path('api/getUserTransactions/<int:id>', getUserTransactions),
-    path('api/makePayment/<int:id>', makePayment),
-    path('api/refundTransaction/<int:id>', refundTransaction),
-    path('api/cancelTransaction/<int:id>', cancelTransaction),
-    path('api/deleteTransaction/<int:id>', deleteTransaction)"""
