@@ -20,12 +20,12 @@ from paystuff.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/createTransaction/', createTransaction),
-    path('api/getTransaction', getTransaction),
-    path('api/getUserTransactions', getUserTransactions),
-    path('api/getUserDetails', getUserDetails),
-    path('api/getEmailTransactions', getEmailTransactions),
-    path('api/makePayment', makePayment),
-    path('api/refundTransaction', refundTransaction),
-    path('api/cancelTransaction', cancelTransaction)
+    path('createTransaction/', createTransaction),
+    path('getTransaction', getTransaction),
+    path('getUserTransactions', getUserTransactions),
+    path('getUserDetails', getUserDetails),
+    path('getEmailTransactions', getEmailTransactions),
+    path('makePayment', makePayment),
+    path('refundTransaction', refundTransaction),
+    path('cancelTransaction', cancelTransaction)
 ]
